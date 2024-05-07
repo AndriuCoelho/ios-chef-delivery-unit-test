@@ -47,7 +47,7 @@ final class SearchStoreViewModelTests: XCTestCase {
                                     headerImage: nil,
                                     location: "",
                                     stars: 3,
-                                    products: [])
+                                    products: [], specialties: ["tacos", "mexicana"])
         ]
         
         sut.searchText = "Ca"
