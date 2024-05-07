@@ -2,23 +2,44 @@
 //  SearchView.swift
 //  ChefDelivery
 //
-//  Created by ALURA on 21/04/24.
+//  Created by Ândriu F Coelho on 21/04/24.
 //
 
 import SwiftUI
 
 struct SearchStoreView: View {
     
-    let service: SearchService
-    @State var storesType: [StoreType] = []
+    @ObservedObject var viewModel: SearchStoreViewModel
     
-    // MARK: - Main View
+    // MARK: - Views
+    
+    var searchTextView: some View {
+        HStack {
+            TextField("Pesquisar em Chef Delivery", text: $viewModel.searchText)
+                .padding(7)
+                .padding(.horizontal, 25)
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+            
+            Button {
+                viewModel.searchText = ""
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundColor(.gray)
+                    .padding(.trailing, 8)
+            }
+        }
+        .padding(.top, 8)
+    }
     
     var body: some View {
         NavigationView {
             VStack {
                 List {
-                    ForEach(storesType, id: \.id) { store in
+                    searchTextView
+                        .listRowSeparator(.hidden)
+                    
+                    ForEach(viewModel.filteredStores(), id: \.id) { store in
                         Text(store.name)
                             .font(.custom("Futura", size: 16))
                             .listRowInsets(EdgeInsets())
@@ -35,27 +56,7 @@ struct SearchStoreView: View {
                 Spacer()
             }
         }
-        .onAppear {
-            fetchData()
-        }
     }
-    
-    // MARK: - Class methods
-    
-    func fetchData() {
-        Task {
-            do {
-                let result = try await service.fetchData()
-                switch result {
-                case .success(let stores):
-                    self.storesType = stores
-                case .failure(let error):
-                    print(error.localizedDescription)
-                }
-            } catch {
-                print(error.localizedDescription)
-            }
-        }
-    }
+
 }
 
