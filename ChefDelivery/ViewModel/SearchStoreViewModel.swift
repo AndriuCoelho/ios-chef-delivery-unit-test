@@ -41,8 +41,21 @@ class SearchStoreViewModel: ObservableObject {
     func filteredStores() -> [StoreType] {
         if searchText.isEmpty {
             return storesType
+        } else {
+            let searchTerms = searchText.lowercased().components(separatedBy: " ")
+            
+            return storesType.filter { store in
+                let nameContainsSearchTerm = searchTerms.allSatisfy { term in
+                    store.name.lowercased().contains(term)
+                }
+                
+                let specialtiesContainsSearchTerm = searchTerms.allSatisfy { term in
+                    store.specialties?.contains { $0.lowercased().contains(term) } ?? false
+                }
+                
+                return nameContainsSearchTerm || specialtiesContainsSearchTerm
+            }
         }
-        return storesType.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
     }
     
 }
