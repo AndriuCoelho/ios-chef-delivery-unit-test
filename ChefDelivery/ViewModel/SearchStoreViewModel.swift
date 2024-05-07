@@ -7,6 +7,10 @@
 
 import Foundation
 
+enum SearchError: Error {
+    case noResultsFound
+}
+
 class SearchStoreViewModel: ObservableObject {
     
     // MARK: - Attributes
@@ -38,11 +42,17 @@ class SearchStoreViewModel: ObservableObject {
         }
     }
     
-    func filteredStores() -> [StoreType] {
+    func filteredStores() throws -> [StoreType] {
         if searchText.isEmpty {
             return storesType
-        } else {
-            return storesType.filter { $0.matches(query: searchText.lowercased()) }
         }
+        
+        let filteredList = storesType.filter { $0.matches(query: searchText.lowercased()) }
+        
+        if filteredList.isEmpty {
+            throw SearchError.noResultsFound
+        }
+        
+        return filteredList
     }
 }

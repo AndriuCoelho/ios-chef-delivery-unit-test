@@ -18,78 +18,6 @@ final class SearchStoreViewModelTests: XCTestCase {
 
     override func setUpWithError() throws {
         sut = SearchStoreViewModel(service: SearchService())
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-    
-    // MARK: - Unit tests
-
-    func testFilteredStores() {
-        sut.storesType = [StoreType(id: 1,
-                                    name: "Monstro Burger",
-                                    logoImage: nil,
-                                    headerImage: nil,
-                                    location: "",
-                                    stars: 4,
-                                    products: []),
-                          StoreType(id: 2,
-                                    name: "Food Court",
-                                    logoImage: nil,
-                                    headerImage: nil,
-                                    location: "",
-                                    stars: 4,
-                                    products: []),
-                          StoreType(id: 3,
-                                    name: "Carbron",
-                                    logoImage: nil,
-                                    headerImage: nil,
-                                    location: "",
-                                    stars: 3,
-                                    products: [], specialties: ["tacos", "mexicana"])
-        ]
-        
-        sut.searchText = "Ca"
-        
-        let filteredStores = sut.filteredStores()
-        
-        XCTAssertEqual(1, filteredStores.count)
-        XCTAssertEqual("Carbron", filteredStores[0].name)
-    }
-    
-    func testFilteredStoresWithSpecialCharactersInSearchText() {
-        sut.storesType = [StoreType(id: 1,
-                                    name: "Monstro Burger",
-                                    logoImage: nil,
-                                    headerImage: nil,
-                                    location: "",
-                                    stars: 4,
-                                    products: []),
-                          StoreType(id: 2,
-                                    name: "Food Court",
-                                    logoImage: nil,
-                                    headerImage: nil,
-                                    location: "",
-                                    stars: 4,
-                                    products: []),
-                          StoreType(id: 3,
-                                    name: "Carbron",
-                                    logoImage: nil,
-                                    headerImage: nil,
-                                    location: "",
-                                    stars: 3,
-                                    products: [])
-        ]
-        
-        sut.searchText = "!@#$%"
-        
-        let filteredStores = sut.filteredStores()
-        
-        XCTAssertTrue(filteredStores.isEmpty)
-    }
-    
-    func testFilteredStoresUsingTerm() {
         
         sut.storesType = [StoreType(id: 1,
                                     name: "Monstro Burger",
@@ -148,13 +76,59 @@ final class SearchStoreViewModelTests: XCTestCase {
                                     products: [],
                                     specialties: ["Cozinha mediterrânea", "Grego"])
         ]
+    }
+
+    override func tearDownWithError() throws {
+        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    }
+    
+    // MARK: - Unit tests
+
+    func testFilteredStores() {
+        sut.searchText = "Ca"
         
+        var filteredStores: [StoreType] = []
+        
+        do {
+            filteredStores = try sut.filteredStores()
+            XCTAssertEqual(2, filteredStores.count)
+            XCTAssertEqual("Carbron", filteredStores[0].name)
+        } catch {
+            XCTFail("Failed to search stores")
+        }
+    }
+    
+    func testFilteredStoresWithSpecialCharactersInSearchText() {
+        var filteredStores: [StoreType] = []
+        
+        sut.searchText = "!@#$%"
+        
+        do {
+            filteredStores = try sut.filteredStores()
+            XCTFail("Failed to search")
+        } catch {
+            XCTAssertTrue(filteredStores.isEmpty)
+        }
+    }
+    
+    func testFilteredStoresUsingTerm() {
         sut.searchText = "pizza"
         
-        let filteredStores = sut.filteredStores()
+        var filteredStores: [StoreType] = []
         
-        XCTAssertEqual(1, filteredStores.count)
-        XCTAssertEqual("Food Court", filteredStores[0].name)
+        do {
+            filteredStores = try sut.filteredStores()
+            XCTAssertEqual(1, filteredStores.count)
+            XCTAssertEqual("Food Court", filteredStores[0].name)
+        } catch {
+            XCTFail("Failed to search")
+        }
+    }
+    
+    func testFilteredStoresException() {
+        sut.searchText = "xxZZz"
+        
+        XCTAssertThrowsError(try sut.filteredStores())
     }
 
 }
